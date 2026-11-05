@@ -1,20 +1,14 @@
 import { useState } from "react";
 import Die from "./components/Die";
 import { nanoid } from "nanoid";
+import { useWindowSize } from "react-use";
+import Confetti from "react-confetti";
 
-/**
- * Challenge: Create a function `hold` that takes
- * `id` as a parameter. For now, just have the function
- * console.log(id).
- *
- * Then, figure out how to pass that function down to each
- * instance of the Die component so when each one is clicked,
- * it logs its own unique ID property. (Hint: there's more
- * than one way to make that work, so just choose whichever
- * you want)
- */
 function App() {
-  const [dice, setDice] = useState(generateAllNewDice());
+  const [dice, setDice] = useState(() => generateAllNewDice()); // using an anonymous function instead of calling the function directly ensures that React doesn't call the generateAllNewDice function on every rerender. 
+  const gameWon = dice.every((die) => die.value === dice[0].value);
+  const { width, height } = useWindowSize();
+
   const diceElements = dice.map((item) => (
     <Die
       key={item.id}
@@ -56,9 +50,15 @@ function App() {
 
   return (
     <main>
+      <h1 className='title'>Tenzies</h1>
+      <p className='instructions'>
+        Roll until all dice are the same. Click each die to freeze it at its
+        current value between rolls.
+      </p>
+      {gameWon ? <Confetti width={width} height={height} /> : '' }
       <div className='dice-container'>{diceElements}</div>
       <button className='roll-dice' onClick={rollDice}>
-        Roll
+        {gameWon ? "New Game" : "Roll"}
       </button>
     </main>
   );
